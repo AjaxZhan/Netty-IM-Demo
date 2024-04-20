@@ -1,15 +1,16 @@
 package cn.cagurzhan.server;
 
-import io.netty.bootstrap.Bootstrap;
+import cn.cagurzhan.codec.PacketCodeCHandler;
+import cn.cagurzhan.codec.Spliter;
+import cn.cagurzhan.server.handler.AuthHandler;
+import cn.cagurzhan.server.handler.IMHandler;
+import cn.cagurzhan.server.handler.LoginRequestHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 
 /**
  * @author AjaxZhan
@@ -25,13 +26,24 @@ public class NettyServer {
         ServerBootstrap serverBootstrap = new ServerBootstrap();
         serverBootstrap.group(bossGroup, workGroup)
                 .channel(NioServerSocketChannel.class)
-                .option(ChannelOption.SO_BACKLOG, 1024)
-                .childOption(ChannelOption.SO_KEEPALIVE, true)
-                .childOption(ChannelOption.TCP_NODELAY, true)
+                .option(ChannelOption.SO_BACKLOG, 1024) // 连接队列
+                .childOption(ChannelOption.SO_KEEPALIVE, true) // TCP保活机制
+                .childOption(ChannelOption.TCP_NODELAY, true) // 关闭Nagle算法
                 .childHandler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
                     protected void initChannel(NioSocketChannel ch) throws Exception {
-                        ch.pipeline().addLast(new FirstServerHandler());
+                        // 空闲检测
+                        // 拆包
+                        ch.pipeline().addLast(new Spliter());
+                        // 编解码
+                        ch.pipeline().addLast(PacketCodeCHandler.INSTANCE);
+                        // 登录校验
+                        ch.pipeline().addLast(LoginRequestHandler.INSTANCE);
+                        // 心跳检测
+                        // 身份验证
+                        ch.pipeline().addLast(AuthHandler.INSTANCE);
+                        // IM功能
+                        ch.pipeline().addLast(IMHandler.INSTANCE);
                     }
                 });
 
