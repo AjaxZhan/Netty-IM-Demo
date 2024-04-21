@@ -2,8 +2,7 @@ package cn.cagurzhan.client;
 
 import cn.cagurzhan.client.console.ConsoleCommandManager;
 import cn.cagurzhan.client.console.LoginConsoleCommand;
-import cn.cagurzhan.client.handler.LoginResponseHandler;
-import cn.cagurzhan.client.handler.MessageResponseHandler;
+import cn.cagurzhan.client.handler.*;
 import cn.cagurzhan.codec.PacketCodeCHandler;
 import cn.cagurzhan.codec.Spliter;
 import cn.cagurzhan.utils.SessionUtils;
@@ -65,11 +64,17 @@ public class NettyClient {
                         // 接收消息
                         ch.pipeline().addLast(new MessageResponseHandler());
                         // 创建群聊
+                        ch.pipeline().addLast(new CreateGroupResponseHandler());
                         // 加入群聊
+                        ch.pipeline().addLast(new JoinGroupResponseHandler());
                         // 退出群聊
+                        ch.pipeline().addLast(new QuitGroupResponseHandler());
                         // 获取群成员
+                        ch.pipeline().addLast(new ListGroupMembersResponseHandler());
                         // 群消息
+                        ch.pipeline().addLast(new GroupMessageResponseHandler());
                         // 退出登录
+                        ch.pipeline().addLast(new LogoutResponseHandler());
                         // 心跳包
                     }
                 });
