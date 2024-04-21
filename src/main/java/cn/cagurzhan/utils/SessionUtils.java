@@ -16,16 +16,19 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SessionUtils {
 
     /**
-     * 客户端使用
      * 存放userId - channel
      * 表示已经登录的连接
      */
     private static final Map<String, Channel> userIdChannelMap = new ConcurrentHashMap<>();
 
-    //  TODO 存放groupId - Channel
+    /**
+     * 存放groupId - channel集合
+     * 表示已经建立的群组
+     */
+    private static final Map<String,ChannelGroup> groupIdChannelGroup = new ConcurrentHashMap<>();
 
     /**
-     * 客户端使用，将已连接的用户channel保存起来
+     * 保存已登录的客户端连接和Session
      */
     public static void bindSession(Session session, Channel channel) {
         userIdChannelMap.put(session.getUserId(), channel);
@@ -64,5 +67,13 @@ public class SessionUtils {
      */
     public static Channel getChannel(String userId) {
         return userIdChannelMap.get(userId);
+    }
+
+    public static void bindChannelGroup(String groupId, ChannelGroup channelGroup){
+        groupIdChannelGroup.put(groupId,channelGroup);
+    }
+
+    public static ChannelGroup getChannelGroup(String groupId){
+        return groupIdChannelGroup.get(groupId);
     }
 }
