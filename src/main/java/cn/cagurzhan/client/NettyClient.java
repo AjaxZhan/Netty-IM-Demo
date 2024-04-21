@@ -5,6 +5,7 @@ import cn.cagurzhan.client.console.LoginConsoleCommand;
 import cn.cagurzhan.client.handler.*;
 import cn.cagurzhan.codec.PacketCodeCHandler;
 import cn.cagurzhan.codec.Spliter;
+import cn.cagurzhan.handler.IMIdleStateHandler;
 import cn.cagurzhan.utils.SessionUtils;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -14,6 +15,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.timeout.IdleStateHandler;
 
 import java.util.Date;
 import java.util.Scanner;
@@ -55,6 +57,7 @@ public class NettyClient {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         // 空闲检测
+                        ch.pipeline().addLast(new IMIdleStateHandler());
                         // 粘包问题解决
                         ch.pipeline().addLast(new Spliter());
                         // 编解码
@@ -76,6 +79,7 @@ public class NettyClient {
                         // 退出登录
                         ch.pipeline().addLast(new LogoutResponseHandler());
                         // 心跳包
+                        ch.pipeline().addLast(new HeartBeatResponseHandler());
                     }
                 });
 

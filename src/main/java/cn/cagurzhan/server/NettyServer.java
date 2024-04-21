@@ -2,7 +2,9 @@ package cn.cagurzhan.server;
 
 import cn.cagurzhan.codec.PacketCodeCHandler;
 import cn.cagurzhan.codec.Spliter;
+import cn.cagurzhan.handler.IMIdleStateHandler;
 import cn.cagurzhan.server.handler.AuthHandler;
+import cn.cagurzhan.server.handler.HeartBeatRequestHandler;
 import cn.cagurzhan.server.handler.IMHandler;
 import cn.cagurzhan.server.handler.LoginRequestHandler;
 import io.netty.bootstrap.ServerBootstrap;
@@ -33,6 +35,7 @@ public class NettyServer {
                     @Override
                     protected void initChannel(NioSocketChannel ch) throws Exception {
                         // 空闲检测
+                        ch.pipeline().addLast(new IMIdleStateHandler());
                         // 拆包
                         ch.pipeline().addLast(new Spliter());
                         // 编解码
@@ -40,6 +43,7 @@ public class NettyServer {
                         // 登录校验
                         ch.pipeline().addLast(LoginRequestHandler.INSTANCE);
                         // 心跳检测
+                        ch.pipeline().addLast(HeartBeatRequestHandler.INSTANCE);
                         // 身份验证
                         ch.pipeline().addLast(AuthHandler.INSTANCE);
                         // IM功能
